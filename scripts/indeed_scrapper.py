@@ -151,18 +151,5 @@ if __name__ == '__main__':
         for job in os.listdir(indeed_htmls):
             save_skills(indeed_html_files=indeed_htmls, job=job, skills_dataset_location='../data', skills_dataset_filename='skills_dataset')
 
-            
-
-
-
-        
-        
-    # Vamos a abrir uno de los html de indeed, porque creo que no hay nada ahí
-    #soup = open_html_file(html_files=indeed_htmls, job_title='farmer')
-    #content = soup.find('div', class_='job-description-upper-content col-lg-6')
-    #print(content.find_all('li'))
-    
-
-
     
 
