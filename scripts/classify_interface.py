@@ -2,15 +2,18 @@ import pandas as pd
 import os
 
 class LabelingInterface:
-    def __init__(self, all_skills_file:str, classified_skills_file:str):
+    def __init__(self, all_skills_file:str, classified_skills_file:str, current_dir:str='.'):
         # Abrimos el archivo de todas las skills
-        assert os.path.exists(all_skills_file)
-        self.all_skills = pd.read_parquet(all_skills_file)
-        if not os.path.exists(classified_skills_file): # Suponemos que aún no se ha clasificado ninguna skill
+        self.current_dir = current_dir
+        self.all_skills_file = f'{self.current_dir}/{all_skills_file}'
+        self.classified_skills_file = f'{self.current_dir}/{classified_skills_file}'
+        assert os.path.exists(self.all_skills_file)
+        self.all_skills = pd.read_parquet(self.all_skills_file)
+        if not os.path.exists(self.classified_skills_file): # Suponemos que aún no se ha clasificado ninguna skill
             self.classified_skills = pd.DataFrame(columns=['job', 'n_skill', 'skill', 'label'])
         else:
-            self.classified_skills = pd.read_parquet(classified_skills_file)
-        self.classified_skills_file = classified_skills_file
+            self.classified_skills = pd.read_parquet(self.classified_skills_file)
+        #self.classified_skills_file = classified_skills_file
         
     def start_labeling(self):
         new_classifications = []
@@ -38,7 +41,7 @@ class LabelingInterface:
 
 if __name__ == '__main__':
     print('Vamos a comenzar con la clasificación de los skills')
-    label_interface = LabelingInterface('../data/skills_dataset.parquet', '../skills_classified.parquet')
+    label_interface = LabelingInterface('data/skills_dataset.parquet', 'skills_classified.parquet', current_dir='..')
     label_interface.start_labeling()
 
     df = pd.read_parquet('../skills_classified.parquet')
