@@ -119,7 +119,7 @@ if __name__ == '__main__':
     clean_skills = True
 
     if search_jobs_in_google or search_jobs_in_indeed:
-        controler = Controler(dont_load_images=True)
+        controler = Controler(dont_load_images=True, headless=False)
     
     job_titles_location = '../data/static/job_names.csv'
     google_htmls = '../data/html/google'
