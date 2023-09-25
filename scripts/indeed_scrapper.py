@@ -172,19 +172,18 @@ if __name__ == '__main__':
             
     if search_jobs_in_indeed:
         for job_title in job_titles.job:
-            # TODO Evitar búsqueda de trabajos que ya existan en mi dataset
+            print(f'Searching jobs in indeed: {job_title}')
             search_jobs_indeed(controler=controler, indeed_links_files=indeed_links_location, job_title=job_title, indeed_html_files=indeed_htmls, maximize_window=maximize_window, skills_dataset_location=skills_dataset_location, skills_dataset_filename=skills_dataset_filename)
 
     if search_jobs_in_google or search_jobs_in_indeed:
         controler.quit_driver()
 
     if clean_skills:
-        # TODO Evitar que busque siempre todos los trabajos de nuevo. No tiene sentido hacer eso.
         new_found_jobs  = find_new_jobs(indeed_html_files=indeed_htmls, skills_dataset_location=skills_dataset_location, skills_dataset_filename=skills_dataset_filename)
         for job in new_found_jobs:
             save_skills(indeed_html_files=indeed_htmls, job=job, skills_dataset_location=skills_dataset_location, skills_dataset_filename=skills_dataset_filename)
 
     
-    df = pd.read_parquet('../data/skills_dataset.parquet')
+    df = pd.read_parquet(f'{skills_dataset_location}/{skills_dataset_filename}.parquet')
     print(f'Total de skills hasta ahora: {df.shape[0]}')
 
