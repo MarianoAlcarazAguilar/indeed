@@ -110,7 +110,7 @@ def save_skills(indeed_html_files:str, job:str, skills_dataset_location:str, ski
     df = pd.DataFrame(skills, columns=['skill']).assign(job=job.split('.')[0]).rename(lambda x: x+1).reset_index().rename(columns={'index':'n_skill'})[['job', 'n_skill', 'skill']]
     # Lo guardamos con el existente previamente
     pd.concat((df, existing_skills)).drop_duplicates(subset=['skill', 'job']).to_parquet(f'{skills_dataset_location}/{skills_dataset_filename}.parquet', index=False)
-    pd.concat((df, existing_skills)).drop_duplicates(subset=['skill', 'job']).to_csv(f'{skills_dataset_location}/{skills_dataset_filename}.csv', index=False)
+    #pd.concat((df, existing_skills)).drop_duplicates(subset=['skill', 'job']).to_csv(f'{skills_dataset_location}/{skills_dataset_filename}.csv', index=False)
 
     
 if __name__ == '__main__':
