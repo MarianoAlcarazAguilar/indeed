@@ -2,7 +2,6 @@ from selenium_controler import Controler
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
 import pandas as pd
-import requests
 import time
 import os
 import re
