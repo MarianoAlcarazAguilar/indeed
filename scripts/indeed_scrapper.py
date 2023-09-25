@@ -113,7 +113,7 @@ def save_skills(indeed_html_files:str, job:str, skills_dataset_location:str, ski
 
     
 if __name__ == '__main__':
-    search_jobs_in_google = True
+    search_jobs_in_google = True 
     clean_html_files = True
     search_jobs_in_indeed = True
     clean_skills = True
