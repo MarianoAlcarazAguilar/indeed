@@ -18,25 +18,33 @@ class LabelingInterface:
     def start_labeling(self):
         new_classifications = []
         # Vamos a buscar los skills que no existan en las que ya están clasificadas
-
-        for _, row in self.all_skills.iterrows():
+        unclassified = self.get_unclassified_skills()
+        for row in unclassified:
             job, skill = row.job, row.skill
 
-            if skill not in self.classified_skills.skill.values:
-                # Le preguntamos al usuario cuál es el label
-                label = input(f'\n{job} \t{skill}\n')
-                if label == 'exit':
-                    if len(new_classifications) > 0:
-                        self.save_new_classifications(new_classifications)
-                    return
-                else:
-                    new_row = list(row.values) + [label]
-                    new_classifications.append(new_row)
+            
+            # Le preguntamos al usuario cuál es el label
+            label = input(f'\n{job} \t{skill}\n')
+            if label == 'exit':
+                if len(new_classifications) > 0:
+                    self.save_new_classifications(new_classifications)
+                return
+            else:
+                new_row = list(row.values) + [label]
+                new_classifications.append(new_row)
             
     def save_new_classifications(self, new_classifications:list):
         # Creamos un nuevo dataframe con la lista
         new_df = pd.DataFrame(new_classifications, columns=self.classified_skills.columns)
         pd.concat([new_df, self.classified_skills]).to_parquet(self.classified_skills_file, index=False)
+
+    def get_unclassified_skills(self):
+        unclassified = []
+        for _, row in self.all_skills.iterrows():
+            skill = row.skill
+            if skill not in self.classified_skills.skill.values:
+                unclassified.append(row)
+        return unclassified
                 
 
 if __name__ == '__main__':
