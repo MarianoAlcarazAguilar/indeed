@@ -132,7 +132,7 @@ if __name__ == '__main__':
         for job_title in job_titles.job:
             # TODO Si la página de google no es de scrollear infinito hasta abajo, hay que darse cuenta y buscar por páginas
             # TODO Dar la opción de no buscar jobs que ya existan
-            search_on_google_and_save_html(controler=controler, job_title=job_title, html_files=google_htmls, scroll_down_times=3)
+            search_on_google_and_save_html(controler=controler, job_title=job_title, html_files=google_htmls, scroll_down_times=10)
 
     if clean_and_save_html:
         for job_title in job_titles.job:
