@@ -65,16 +65,26 @@ def clean_indeed_job_title(job:str):
     resultado = re.sub(r'\?.*', '', job)
     return resultado
 
-def search_jobs_indeed(controler:Controler, indeed_links_files:str, job_title:str, indeed_html_files:str, maximize_window=False):
+def search_jobs_indeed(controler:Controler, indeed_links_files:str, job_title:str, indeed_html_files:str, skills_dataset_location:str, skills_dataset_filename:str, maximize_window=False):
     # Abrimos el parquet
+    if not os.path.exists(f'{indeed_links_files}/{job_title}.parquet'):
+        return
+    # Abrimos el parquet de existing skills para asegurarnos de que no estemos abriendo cosas que ya habíamos abierto
+    if os.path.exists(f'{skills_dataset_location}/{skills_dataset_filename}.parquet'):
+        existing_skills = pd.read_parquet(f'{skills_dataset_location}/{skills_dataset_filename}.parquet').job.unique()
+    else:
+        existing_skills = []
+    
     links = pd.read_parquet(f'{indeed_links_files}/{job_title}.parquet')
 
     # Iteramos sobre los sub-trabajos de cada búsqueda
     for link in links.url:
         indeed_job = link.split('/')[-1]
         indeed_job = clean_indeed_job_title(indeed_job)
-        controler.open_url(url=link, maximize_window=maximize_window)
-        controler.get_html(location=f'{indeed_html_files}/{indeed_job}.html')
+        # Aquí tenemos que asegurarnos de que indeed_job no esté ya en skills_dataset
+        if indeed_job not in existing_skills:
+            controler.open_url(url=link, maximize_window=maximize_window)
+            controler.get_html(location=f'{indeed_html_files}/{indeed_job}.html')
 
 def get_job_skills(indeed_html_files:str, job:str):
     '''
@@ -134,7 +144,6 @@ def find_new_jobs(indeed_html_files:str, skills_dataset_location:str, skills_dat
 
 if __name__ == '__main__':
     search_jobs_in_google = True 
-    clean_html_files = True
     search_jobs_in_indeed = True
     clean_skills = True
 
@@ -159,16 +168,12 @@ if __name__ == '__main__':
             # TODO Si la página de google no es de scrollear infinito hasta abajo, hay que darse cuenta y buscar por páginas
             # TODO Dar la opción de no buscar jobs que ya existan
             search_on_google_and_save_html(controler=controler, job_title=job_title, html_files=google_htmls, scroll_down_times=10, maximize_window=maximize_window)
-
-    if clean_and_save_html:
-        print('this is true')
-        for job_title in job_titles.job:
             clean_and_save_html(html_files=google_htmls, job_title=job_title)
-
+            
     if search_jobs_in_indeed:
         for job_title in job_titles.job:
             # TODO Evitar búsqueda de trabajos que ya existan en mi dataset
-            search_jobs_indeed(controler=controler, indeed_links_files=indeed_links_location, job_title=job_title, indeed_html_files=indeed_htmls, maximize_window=maximize_window)
+            search_jobs_indeed(controler=controler, indeed_links_files=indeed_links_location, job_title=job_title, indeed_html_files=indeed_htmls, maximize_window=maximize_window, skills_dataset_location=skills_dataset_location, skills_dataset_filename=skills_dataset_filename)
 
     if search_jobs_in_google or search_jobs_in_indeed:
         controler.quit_driver()
