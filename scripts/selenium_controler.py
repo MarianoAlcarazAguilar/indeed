@@ -6,8 +6,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from  selenium.webdriver.common.actions.wheel_input import ScrollOrigin
 from selenium.webdriver.common.action_chains import ActionChains
-import time
-import sys
 
 # Primero estoy pensando qué voy a necesitar
 # Claramente requiero de un driver
