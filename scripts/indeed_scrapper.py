@@ -151,4 +151,5 @@ if __name__ == '__main__':
             save_skills(indeed_html_files=indeed_htmls, job=job, skills_dataset_location='../data', skills_dataset_filename='skills_dataset')
 
     
-
+    df = pd.read_parquet('../data/skills_dataset.parquet')
+    print(f'Total de skills hasta ahora: {df.shape[0]}')
