@@ -16,12 +16,12 @@ def get_site_url(site_url:str) -> str:
     aux = aux.replace('/', '%2F')
     return aux
 
-def search_on_google_and_save_html(controler:Controler, job_title:str, html_files:str, scroll_down_times:int=25):
+def search_on_google_and_save_html(controler:Controler, job_title:str, html_files:str, scroll_down_times:int=25, maximize_window=False):
     google_url = 'https://www.google.com/search?q='
     site_url = 'site:https://www.indeed.com/hire/job-description/'
 
     job_url = f'{google_url}{job_title}+{get_site_url(site_url)}'
-    controler.open_url(url=job_url, maximize_window=True)
+    controler.open_url(url=job_url, maximize_window=maximize_window)
 
     # Bajamos n veces en la pantalla
     for _ in range(scroll_down_times):
@@ -65,7 +65,7 @@ def clean_indeed_job_title(job:str):
     resultado = re.sub(r'\?.*', '', job)
     return resultado
 
-def search_jobs_indeed(controler:Controler, indeed_links_files:str, job_title:str, indeed_html_files:str):
+def search_jobs_indeed(controler:Controler, indeed_links_files:str, job_title:str, indeed_html_files:str, maximize_window=False):
     # Abrimos el parquet
     links = pd.read_parquet(f'{indeed_links_files}/{job_title}.parquet')
 
@@ -73,8 +73,8 @@ def search_jobs_indeed(controler:Controler, indeed_links_files:str, job_title:st
     for link in links.url:
         indeed_job = link.split('/')[-1]
         indeed_job = clean_indeed_job_title(indeed_job)
-        controler.open_url(url=link, maximize_window=True)
-        controler.get_html(location=f'{indeed_htmls}/{indeed_job}.html')
+        controler.open_url(url=link, maximize_window=maximize_window)
+        controler.get_html(location=f'{indeed_html_files}/{indeed_job}.html')
 
 def get_job_skills(indeed_html_files:str, job:str):
     '''
@@ -84,6 +84,8 @@ def get_job_skills(indeed_html_files:str, job:str):
     skills = []
     soup = open_html_file(html_files=indeed_html_files, job_title=job.split('.')[0])
     content = soup.find('div', class_='job-description-upper-content col-lg-6')
+    if content is None:
+        return skills
     tasks = content.find_all('li')
     for task in tasks:
         parent_attrs = task.parent.attrs
@@ -99,6 +101,8 @@ def save_skills(indeed_html_files:str, job:str, skills_dataset_location:str, ski
     # Abrimos el html y lo limpiamos
     skills = get_job_skills(indeed_html_files=indeed_html_files, job=job)
     if len(skills) == 0:
+        # No existen skills asociadas a dicho trabajo, entonces lo eliminamos de los htmls existentes
+        os.remove(f'{indeed_html_files}/{job}')
         return
     
     if f'{skills_dataset_filename}.parquet' in os.listdir(skills_dataset_location):
@@ -111,45 +115,71 @@ def save_skills(indeed_html_files:str, job:str, skills_dataset_location:str, ski
     pd.concat((df, existing_skills)).drop_duplicates(subset=['skill', 'job']).to_parquet(f'{skills_dataset_location}/{skills_dataset_filename}.parquet', index=False)
     #pd.concat((df, existing_skills)).drop_duplicates(subset=['skill', 'job']).to_csv(f'{skills_dataset_location}/{skills_dataset_filename}.csv', index=False)
 
+def find_new_jobs(indeed_html_files:str, skills_dataset_location:str, skills_dataset_filename=str):
+    '''
+    Esta función encuentra aquellos nombres de trabajos que no se hayan encontrado anteriormente para solo limpiar esos htmls.
+    Regresa una lista con los que hay que limpiar todavía.
+    '''
+    # Intentamos abrir los skills_dataset_filename para encontrar los existentes, si no existe el archivo, envíamos todos los nombres de los html
+    existing_html_jobs = os.listdir(indeed_html_files)
     
+    if f'{skills_dataset_filename}.parquet' not in os.listdir(skills_dataset_location): # Si el archivo no existe, entonces no se ha limpiado nada
+        return existing_html_jobs
+    
+    existing_jobs = pd.read_parquet(f'{skills_dataset_location}/{skills_dataset_filename}.parquet').job.unique()
+    # Ahora lo que tenemos que hacer es encontrar los nombres de trabajos que estén en existing_html_jobs y no estén en existing_jobs
+    new_found_jobs = [job for job in existing_html_jobs if job.split('.')[0] not in existing_jobs]
+    
+    return new_found_jobs
+
 if __name__ == '__main__':
     search_jobs_in_google = True 
     clean_html_files = True
     search_jobs_in_indeed = True
     clean_skills = True
 
+    headless = False
+    maximize_window = False
+
     if search_jobs_in_google or search_jobs_in_indeed:
-        controler = Controler(dont_load_images=True, headless=False)
+        controler = Controler(dont_load_images=True, headless=headless)
     
     job_titles_location = '../data/static/job_names.csv'
     google_htmls = '../data/html/google'
     indeed_htmls = '../data/html/indeed'
     indeed_links_location = '../data/indeed_links'
+    skills_dataset_location='../data'
+    skills_dataset_filename='skills_dataset'
 
     job_titles = pd.read_csv(job_titles_location)
 
     if search_jobs_in_google:
         for job_title in job_titles.job:
+            print(f'Searching: {job_title}')
             # TODO Si la página de google no es de scrollear infinito hasta abajo, hay que darse cuenta y buscar por páginas
             # TODO Dar la opción de no buscar jobs que ya existan
-            search_on_google_and_save_html(controler=controler, job_title=job_title, html_files=google_htmls, scroll_down_times=10)
+            search_on_google_and_save_html(controler=controler, job_title=job_title, html_files=google_htmls, scroll_down_times=10, maximize_window=maximize_window)
 
     if clean_and_save_html:
+        print('this is true')
         for job_title in job_titles.job:
             clean_and_save_html(html_files=google_htmls, job_title=job_title)
 
     if search_jobs_in_indeed:
         for job_title in job_titles.job:
             # TODO Evitar búsqueda de trabajos que ya existan en mi dataset
-            search_jobs_indeed(controler=controler, indeed_links_files=indeed_links_location, job_title=job_title, indeed_html_files=indeed_htmls)
+            search_jobs_indeed(controler=controler, indeed_links_files=indeed_links_location, job_title=job_title, indeed_html_files=indeed_htmls, maximize_window=maximize_window)
 
     if search_jobs_in_google or search_jobs_in_indeed:
         controler.quit_driver()
 
     if clean_skills:
-        for job in os.listdir(indeed_htmls):
-            save_skills(indeed_html_files=indeed_htmls, job=job, skills_dataset_location='../data', skills_dataset_filename='skills_dataset')
+        # TODO Evitar que busque siempre todos los trabajos de nuevo. No tiene sentido hacer eso.
+        new_found_jobs  = find_new_jobs(indeed_html_files=indeed_htmls, skills_dataset_location=skills_dataset_location, skills_dataset_filename=skills_dataset_filename)
+        for job in new_found_jobs:
+            save_skills(indeed_html_files=indeed_htmls, job=job, skills_dataset_location=skills_dataset_location, skills_dataset_filename=skills_dataset_filename)
 
     
     df = pd.read_parquet('../data/skills_dataset.parquet')
     print(f'Total de skills hasta ahora: {df.shape[0]}')
+
