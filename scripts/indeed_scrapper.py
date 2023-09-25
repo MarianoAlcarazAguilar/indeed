@@ -90,7 +90,6 @@ def get_job_skills(indeed_html_files:str, job:str):
     '''
     job en formato nombre.html
     '''
-    # TODO: Asegurarse de que el job no esté ya en los tasks limpios
     skills = []
     soup = open_html_file(html_files=indeed_html_files, job_title=job.split('.')[0])
     content = soup.find('div', class_='job-description-upper-content col-lg-6')
