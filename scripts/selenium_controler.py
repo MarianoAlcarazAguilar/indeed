@@ -7,15 +7,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from  selenium.webdriver.common.actions.wheel_input import ScrollOrigin
 from selenium.webdriver.common.action_chains import ActionChains
 
-# Primero estoy pensando qué voy a necesitar
-# Claramente requiero de un driver
-# Funcionalidad esperada:
-# - Abrir página específica (dado un url) DONE
-# - Dar click en un objeto dado un xpath DONE
-# - Scrollear para abajo de forma instanánea DONE
-# - Scrollear para abajo de forma natural
-# - Descargar el html de la página que esté trabajando
-# - Dar la opción de ser headless o no DONE
 
 class Controler:
     def __init__(self, headless=False, dont_load_images=True):
