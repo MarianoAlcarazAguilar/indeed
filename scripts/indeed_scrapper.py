@@ -142,9 +142,9 @@ def find_new_jobs(indeed_html_files:str, skills_dataset_location:str, skills_dat
     return new_found_jobs
 
 if __name__ == '__main__':
-    search_jobs_in_google = False 
-    search_jobs_in_indeed = False
-    clean_skills = False
+    search_jobs_in_google = True 
+    search_jobs_in_indeed = True
+    clean_skills = True
 
     headless = False
     maximize_window = False
@@ -185,5 +185,4 @@ if __name__ == '__main__':
     
     df = pd.read_parquet(f'{skills_dataset_location}/{skills_dataset_filename}.parquet')
     print(f'Total de skills hasta ahora: {df.shape[0]}')
-    print(df.head())
 
