@@ -1,5 +1,8 @@
+import yaml
+import datetime
 import streamlit as st
-import random
+from yaml.loader import SafeLoader
+import streamlit_authenticator as stauth
 from scripts import classify_interface as ci
 
 def iterator_session(iterator:iter):
@@ -23,10 +26,31 @@ def render_page():
     st.write(job)
     st.write(skill)
     label = st.text_input('Give the label', key='widget', on_change=submit)
+    now = datetime.datetime.now()
     
-    new_label = [list(row.values) + [label]]
+    new_label = [list(row.values) + [label, now]]
     classifier.save_new_classifications(new_label)
-    
+
+def authenticate_user():
+    '''
+    Utiliza esta función para autenticar usuarios.
+    Yo no la voy a usar
+    '''
+    config_yaml_file_location = 'config.yml'
+
+    with open(config_yaml_file_location) as file:
+        config = yaml.load(file, Loader=SafeLoader)
+
+    authenticator = stauth.Authenticate(
+        config['credentials'],
+        config['cookie']['name'],
+        config['cookie']['key'],
+        config['cookie']['expiry_days'],
+        config['preauthorized']
+    )
+
+    return authenticator.login('Login', 'main')
+
 
 if __name__ == '__main__':
     render_page()

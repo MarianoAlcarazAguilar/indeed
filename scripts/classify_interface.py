@@ -10,7 +10,7 @@ class LabelingInterface:
         assert os.path.exists(self.all_skills_file)
         self.all_skills = pd.read_parquet(self.all_skills_file)
         if not os.path.exists(self.classified_skills_file): # Suponemos que aún no se ha clasificado ninguna skill
-            self.classified_skills = pd.DataFrame(columns=['job', 'n_skill', 'skill', 'label'])
+            self.classified_skills = pd.DataFrame(columns=['job', 'n_skill', 'skill', 'label', 'time_log'])
         else:
             self.classified_skills = pd.read_parquet(self.classified_skills_file)
         #self.classified_skills_file = classified_skills_file

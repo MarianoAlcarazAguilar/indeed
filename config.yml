@@ -1,0 +1,17 @@
+cookie:
+  expiry_days: 0
+  key: random_signature_key
+  name: random_cookie_name
+credentials:
+  usernames:
+    mariano:
+      email: marianoaaguilar@hotmail.com
+      name: Mariano Alcaraz
+      password: $2b$12$uAg4h/M7yL2PUEXHudHqqOaIEGY6E5T4.fRX0mpwbkvMtwxDUPhoy
+    mariano_:
+      email: mariano@mail.com
+      name: mariano
+      password: $2b$12$SJpR7cX/Mr6JmGn9kbXnTOGqqb59COCJKSkqzD9rE7GR6A7VKWTkW
+preauthorized:
+  emails:
+  - malcara4@itam.mx
