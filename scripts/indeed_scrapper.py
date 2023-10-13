@@ -22,6 +22,7 @@ def search_on_google_and_save_html(controler:Controler, job_title:str, html_file
 
     job_url = f'{google_url}{job_title}+{get_site_url(site_url)}'
     controler.open_url(url=job_url, maximize_window=maximize_window)
+    time.sleep(6)
 
     # Bajamos n veces en la pantalla
     for _ in range(scroll_down_times):
