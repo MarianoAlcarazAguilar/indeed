@@ -11,3 +11,6 @@ Este repositorio sirve para poder descargar los skills de los trabajos que se es
     - Limpia los htmls extraídos de google para encontrar los links de Indeed
     - Busca los links de Indeed y guarda los htmls de cada uno de los que se encontró en la búsqueda de Google
     - Limpia los htmls de Indeed y guarda los skills encontrados en un archivo llamado `skills_dataset.parquet` en la carpeta de data.
+
+### Datos
+`skills_exposure.parquet` son los datos que ya están clasificados por ChatGPT
